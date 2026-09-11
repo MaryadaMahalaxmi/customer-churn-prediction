@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Result | TelcoChurn AI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="result-wrapper">
+        <!-- Top Banner / Scorecard -->
+        <div class="card result-hero-card {{ result.risk_badge_class }}-border">
+            <div class="result-header">
+                <span class="risk-badge {{ result.risk_badge_class }}">
+                    {{ result.risk_level }} Churn Risk
+                </span>
+                <span class="outcome-pill {% if result.churn_prediction == 'Yes' %}outcome-churn{% else %}outcome-stay{% endif %}">
+                    Prediction: {% if result.churn_prediction == 'Yes' %}🚨 Churn Likely{% else %}✅ Retention Likely{% endif %}
+                </span>
+            </div>
+
+            <div class="gauge-container">
+                <div class="gauge-score">
+                    <span class="gauge-number">{{ result.churn_probability }}%</span>
+                    <span class="gauge-caption">Churn Probability</span>
+                </div>
+                <!-- Visual Progress Bar -->
+                <div class="meter-bar-track">
+                    <div class="meter-bar-fill {{ result.risk_badge_class }}-bg" style="width: {{ result.churn_probability }}%;"></div>
+                </div>
+                <div class="meter-labels">
+                    <span>0% (Safe)</span>
+                    <span>35% (Moderate)</span>
+                    <span>65% (Critical)</span>
+                    <span>100%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two Columns: Risk Drivers & Retention Strategies -->
+        <div class="insights-grid">
+            <!-- Left: Risk Factors -->
+            <div class="card insight-card">
+                <div class="card-header">
+                    <span class="card-icon">🔍</span>
+                    <h3>Primary Risk Drivers Detected</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="driver-list">
+                        {% for factor in result.risk_factors %}
+                        <li class="driver-item">
+                            <span class="bullet-alert">⚠️</span>
+                            <span>{{ factor }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right: Actionable Retention Plan -->
+            <div class="card insight-card">
+                <div class="card-header">
+                    <span class="card-icon">🎯</span>
+                    <h3>Recommended Retention Playbook</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="action-list">
+                        {% for rec in result.recommendations %}
+                        <li class="action-item">
+                            <span class="bullet-action">💡</span>
+                            <span>{{ rec }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Summary Details -->
+        <div class="card summary-card">
+            <div class="card-header">
+                <span class="card-icon">📋</span>
+                <h3>Submitted Customer Profile Snapshot</h3>
+            </div>
+            <div class="card-body">
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="label">Contract</span>
+                        <span class="value">{{ result.customer_profile.get('Contract') }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Tenure</span>
+                        <span class="value">{{ result.customer_profile.get('tenure') }} months</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Monthly Charges</span>
+                        <span class="value">${{ "%.2f"|format(result.customer_profile.get('MonthlyCharges', 0)|float) }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Total Charges</span>
+                        <span class="value">${{ "%.2f"|format(result.customer_profile.get('TotalCharges', 0)|float) }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Internet Service</span>
+                        <span class="value">{{ result.customer_profile.get('InternetService') }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Payment Method</span>
+                        <span class="value">{{ result.customer_profile.get('PaymentMethod') }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Tech Support</span>
+                        <span class="value">{{ result.customer_profile.get('TechSupport') }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Online Security</span>
+                        <span class="value">{{ result.customer_profile.get('OnlineSecurity') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Links -->
+        <div class="result-actions">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                ⬅️ Evaluate Another Customer
+            </a>
+            <a href="{{ url_for('metrics') }}" class="btn btn-secondary">
+                📊 View Model Evaluation & Metrics
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
